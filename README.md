@@ -9,6 +9,8 @@ Struggling with e-Stat API v3.0…
 
 ### `getStatsList`
 
+#### CSV
+
 ``` r
 library(httr)
 
@@ -18,7 +20,8 @@ res_data <- GET(
     appId      = keyring::key_get("appId", keyring = "estat-api-v3.0"),
     statsDataId = "0003103532",
     cdCat01     = "010800130,010800140",
-    sectionHeaderFlg  = 2
+    sectionHeaderFlg  = 2,
+    explanationGetFlg = "Y"
   ))
 
 res <- content(res_data, type = "text/csv;charset=utf-8")
@@ -77,3 +80,37 @@ knitr::kable(head(res, 20))
 |    01     | 金額   | 010800130   | 352 チョコレート  | 03          | 二人以上の世帯（2000年～） | 00000      | 全国   | 2001000606 | 2001年6月  | 円    |   190 | NA         |
 |    01     | 金額   | 010800130   | 352 チョコレート  | 03          | 二人以上の世帯（2000年～） | 00000      | 全国   | 2001000707 | 2001年7月  | 円    |   171 | NA         |
 |    01     | 金額   | 010800130   | 352 チョコレート  | 03          | 二人以上の世帯（2000年～） | 00000      | 全国   | 2001000808 | 2001年8月  | 円    |   160 | NA         |
+
+#### JSON
+
+``` r
+res_data1 <- GET(
+  "http://api.e-stat.go.jp/", path = "rest/3.0/app/json/getStatsData",
+  query = list(
+    appId      = keyring::key_get("appId", keyring = "estat-api-v3.0"),
+    statsDataId = "0003103532",
+    cdCat01     = "010800130,010800140",
+    explanationGetFlg = "Y"
+  ))
+
+res1 <- content(res_data1)
+
+res_data2 <- GET(
+  "http://api.e-stat.go.jp/", path = "rest/3.0/app/json/getStatsData",
+  query = list(
+    appId      = keyring::key_get("appId", keyring = "estat-api-v3.0"),
+    statsDataId = "0003103532",
+    cdCat01     = "010800130,010800140",
+    explanationGetFlg = "N"
+  ))
+
+res2 <- content(res_data2)
+
+# このへんが違いそう
+setdiff(
+  names(res1$GET_STATS_DATA$STATISTICAL_DATA$TABLE_INF),
+  names(res2$GET_STATS_DATA$STATISTICAL_DATA$TABLE_INF)
+)
+```
+
+    ## [1] "DESCRIPTION"
