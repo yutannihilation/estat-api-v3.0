@@ -1,0 +1,33 @@
+---
+title: "Struggling with e-Stat API v3.0..."
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Specifications
+
+* <https://www.e-stat.go.jp/api/api-info/e-stat-manual3-0>
+
+## APIs
+
+### `getStatsList`
+
+```{r}
+library(httr)
+
+res_data <- GET(
+  "http://api.e-stat.go.jp/", path = "rest/3.0/app/getSimpleStatsData",
+  query = list(
+    appId      = keyring::key_get("appId", keyring = "estat-api-v3.0"),
+    statsDataId = "0003103532",
+    cdCat01     = "010800130,010800140",
+    sectionHeaderFlg  = 2
+  ))
+
+res <- content(res_data, type = "text/csv;charset=utf-8")
+
+knitr::kable(head(res, 20))
+```
